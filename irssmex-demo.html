@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>irsSMEX — AI Lead Response System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080C14;
+    --surface: #0E1420;
+    --surface2: #141B2D;
+    --border: rgba(99,120,255,0.15);
+    --blue: #4F6EF7;
+    --blue-dim: rgba(79,110,247,0.12);
+    --green: #00D68F;
+    --green-dim: rgba(0,214,143,0.1);
+    --amber: #F59E0B;
+    --amber-dim: rgba(245,158,11,0.1);
+    --red: #F43F5E;
+    --text: #E8EDF8;
+    --muted: #7A869E;
+    --faint: #3A4560;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(8,12,20,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 20px; font-weight: 700; color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .nav-logo span { color: var(--blue); }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none;
+    font-size: 14px; font-weight: 400;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--blue);
+    color: #fff; border: none; cursor: pointer;
+    padding: 10px 22px; border-radius: 8px;
+    font-family: var(--font-body); font-size: 14px; font-weight: 500;
+    transition: opacity 0.2s;
+  }
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(79,110,247,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,110,247,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(79,110,247,0.12) 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%, -60%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--blue-dim); border: 1px solid var(--border);
+    border-radius: 100px; padding: 6px 16px;
+    font-size: 12px; font-weight: 500; color: var(--blue);
+    letter-spacing: 1.5px; text-transform: uppercase;
+    margin-bottom: 28px;
+    position: relative; z-index: 1;
+  }
+  .badge-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 6vw, 80px);
+    font-weight: 800; line-height: 1.05;
+    letter-spacing: -2px;
+    position: relative; z-index: 1;
+    margin-bottom: 24px;
+  }
+  .hero h1 em { font-style: normal; color: var(--blue); }
+  .hero p {
+    font-size: 18px; color: var(--muted); max-width: 520px;
+    font-weight: 300; line-height: 1.7;
+    position: relative; z-index: 1;
+    margin-bottom: 40px;
+  }
+  .hero-actions {
+    display: flex; gap: 16px; align-items: center;
+    position: relative; z-index: 1;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .btn-primary {
+    background: var(--blue); color: #fff;
+    border: none; cursor: pointer;
+    padding: 14px 32px; border-radius: 10px;
+    font-family: var(--font-body); font-size: 15px; font-weight: 500;
+    transition: all 0.2s;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--faint); cursor: pointer;
+    padding: 14px 32px; border-radius: 10px;
+    font-family: var(--font-body); font-size: 15px; font-weight: 400;
+    transition: all 0.2s; text-decoration: none; display: inline-block;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex; justify-content: center; gap: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-wrap: wrap;
+  }
+  .stat-item {
+    flex: 1; min-width: 160px;
+    padding: 28px 32px; text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 36px; font-weight: 700;
+    color: var(--text); letter-spacing: -1px;
+  }
+  .stat-num span { color: var(--blue); }
+  .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* ── SECTION ── */
+  section { padding: 96px 48px; max-width: 1100px; margin: 0 auto; }
+  .section-tag {
+    font-size: 11px; font-weight: 600; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--blue);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 700; letter-spacing: -1.5px;
+    line-height: 1.1; margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 17px; color: var(--muted);
+    max-width: 520px; font-weight: 300; line-height: 1.7;
+    margin-bottom: 56px;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2px;
+    background: var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .flow-step {
+    background: var(--surface);
+    padding: 36px 28px;
+    position: relative;
+    transition: background 0.2s;
+  }
+  .flow-step:hover { background: var(--surface2); }
+  .step-num {
+    font-family: var(--font-display);
+    font-size: 48px; font-weight: 800;
+    color: var(--blue-dim);
+    color: rgba(79,110,247,0.18);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .step-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--blue-dim); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; margin-bottom: 16px;
+  }
+  .flow-step h3 {
+    font-family: var(--font-display);
+    font-size: 17px; font-weight: 600;
+    margin-bottom: 10px; letter-spacing: -0.3px;
+  }
+  .flow-step p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* ── LIVE DEMO ── */
+  .demo-wrapper {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 24px; align-items: start;
+  }
+  .demo-form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 32px;
+  }
+  .demo-form-card h3 {
+    font-family: var(--font-display);
+    font-size: 18px; font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .demo-form-card p { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block; font-size: 12px; font-weight: 500;
+    color: var(--muted); letter-spacing: 0.5px;
+    margin-bottom: 6px; text-transform: uppercase;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--faint);
+    border-radius: 8px;
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: none;
+  }
+  .form-group input:focus,
+  .form-group select,
+  .form-group textarea:focus { border-color: var(--blue); }
+  .form-group select { appearance: none; cursor: pointer; }
+  .form-group select option { background: var(--surface); }
+  .submit-btn {
+    width: 100%; padding: 13px;
+    background: var(--blue); color: #fff;
+    border: none; border-radius: 8px;
+    font-family: var(--font-display);
+    font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .submit-btn:hover { opacity: 0.88; }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── RESPONSE PANEL ── */
+  .response-panel {
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .response-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+    transition: all 0.4s;
+  }
+  .response-card.hidden { opacity: 0.3; filter: blur(1px); }
+  .response-card.active { opacity: 1; filter: none; border-color: var(--blue); }
+  .card-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .card-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+  .card-icon.blue { background: var(--blue-dim); }
+  .card-icon.green { background: var(--green-dim); }
+  .card-icon.amber { background: var(--amber-dim); }
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 14px; font-weight: 600; color: var(--text);
+  }
+  .card-sub { font-size: 12px; color: var(--muted); }
+
+  /* Score badge */
+  .score-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .score-badge {
+    padding: 5px 14px; border-radius: 100px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+  }
+  .score-hot { background: rgba(244,63,94,0.15); color: #F43F5E; border: 1px solid rgba(244,63,94,0.3); }
+  .score-warm { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+  .score-cold { background: rgba(122,134,158,0.1); color: var(--muted); border: 1px solid var(--faint); }
+  .intent-tag {
+    padding: 5px 12px; border-radius: 100px;
+    font-size: 11px; font-weight: 500;
+    background: var(--blue-dim); color: var(--blue);
+    border: 1px solid var(--border);
+  }
+
+  /* Summary box */
+  .summary-box {
+    background: var(--bg);
+    border-radius: 8px; padding: 14px;
+    font-size: 14px; color: var(--muted);
+    line-height: 1.6; border: 1px solid var(--faint);
+    min-height: 60px;
+  }
+  .typing-cursor {
+    display: inline-block;
+    width: 2px; height: 14px;
+    background: var(--blue);
+    margin-left: 2px;
+    animation: blink 0.8s infinite;
+    vertical-align: middle;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* Reply preview */
+  .reply-preview {
+    background: var(--bg);
+    border-radius: 8px; padding: 16px;
+    font-size: 13.5px; color: var(--muted);
+    line-height: 1.8; border: 1px solid var(--faint);
+    min-height: 80px;
+  }
+  .reply-preview strong { color: var(--text); font-weight: 500; }
+
+  /* Notification */
+  .notif-row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px; background: var(--bg);
+    border-radius: 8px; border: 1px solid var(--faint);
+  }
+  .notif-avatar {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--blue); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .notif-body { font-size: 13px; line-height: 1.5; }
+  .notif-body strong { color: var(--text); font-weight: 500; }
+  .notif-body span { color: var(--muted); }
+  .notif-time { font-size: 11px; color: var(--faint); margin-top: 3px; }
+
+  /* Processing bar */
+  .processing-steps { display: flex; flex-direction: column; gap: 10px; }
+  .p-step {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px; color: var(--muted);
+    opacity: 0; transform: translateX(-8px);
+    transition: all 0.4s;
+  }
+  .p-step.show { opacity: 1; transform: translateX(0); }
+  .p-step.done { color: var(--green); }
+  .p-icon {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 1.5px solid var(--faint);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .p-step.done .p-icon {
+    background: var(--green-dim);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .p-spin {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 1.5px solid var(--faint);
+    border-top-color: var(--blue);
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── FEATURES GRID ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .feat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 28px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .feat-card:hover { border-color: var(--blue); transform: translateY(-2px); }
+  .feat-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--blue-dim); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 16px;
+  }
+  .feat-card h3 {
+    font-family: var(--font-display);
+    font-size: 16px; font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .feat-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* ── CTA ── */
+  .cta-section {
+    text-align: center;
+    padding: 96px 48px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .cta-section h2 {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: 800; letter-spacing: -2px;
+    margin-bottom: 16px;
+  }
+  .cta-section p {
+    color: var(--muted); font-size: 17px;
+    max-width: 440px; margin: 0 auto 36px;
+    font-weight: 300;
+  }
+  .cta-meta {
+    font-size: 13px; color: var(--faint);
+    margin-top: 18px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 36px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap; gap: 12px;
+  }
+  footer .logo {
+    font-family: var(--font-display);
+    font-size: 16px; font-weight: 700;
+  }
+  footer .logo span { color: var(--blue); }
+  footer p { font-size: 13px; color: var(--faint); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 32px; right: 32px;
+    background: var(--green);
+    color: #001a0f;
+    padding: 14px 22px; border-radius: 10px;
+    font-size: 14px; font-weight: 600;
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 999;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    section { padding: 64px 20px; }
+    .demo-wrapper { grid-template-columns: 1fr; }
+    .stats-bar { flex-direction: column; }
+    .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
+    footer { padding: 24px 20px; flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">irs<span>SMEX</span></div>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#demo">Live demo</a>
+    <a href="#features">Features</a>
+  </div>
+  <button class="nav-cta" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">See it live →</button>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-badge"><span class="badge-dot"></span>Powered by Claude AI</div>
+  <h1>Never miss a lead.<br><em>Ever again.</em></h1>
+  <p>Our AI responds to every inquiry in under 60 seconds — qualified, personalized, and sent automatically while you sleep.</p>
+  <div class="hero-actions">
+    <a href="#demo" class="btn-primary">Try the live demo</a>
+    <a href="#how" class="btn-ghost">How it works</a>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num">&lt;<span>60</span>s</div>
+    <div class="stat-label">Response time</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num"><span>3</span>x</div>
+    <div class="stat-label">More leads converted</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num"><span>24</span>/7</div>
+    <div class="stat-label">Always on, never tired</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num"><span>0</span></div>
+    <div class="stat-label">Leads slipping through</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-tag">The system</div>
+  <h2 class="section-title">From inquiry to<br>qualified reply in seconds</h2>
+  <p class="section-sub">Five automated steps that run without you lifting a finger.</p>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="step-num">01</div>
+      <h3>Lead arrives</h3>
+      <p>Via website form, email, or WhatsApp — the system picks it up instantly from any channel.</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">02</div>
+      <h3>AI reads & scores</h3>
+      <p>Claude analyzes the message, scores intent as Hot / Warm / Cold, and tags what they need.</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">03</div>
+      <h3>Personalized reply sent</h3>
+      <p>A custom response is written and sent on the same channel — email, WhatsApp, or both.</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">04</div>
+      <h3>CRM updated</h3>
+      <p>A new record is created in Airtable automatically with full context and lead score.</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">05</div>
+      <h3>Team notified</h3>
+      <p>Your Slack or WhatsApp gets a summary: who, what they want, and what to do next.</p>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE DEMO -->
+<section id="demo" style="max-width:1100px;">
+  <div class="section-tag">Interactive demo</div>
+  <h2 class="section-title">Submit a lead.<br>Watch AI handle it.</h2>
+  <p class="section-sub">Fill the form as if you were a potential client — see the full system respond in real time.</p>
+
+  <div class="demo-wrapper">
+    <!-- Form -->
+    <div class="demo-form-card">
+      <h3>New client inquiry</h3>
+      <p>This is what your website contact form looks like to clients</p>
+
+      <div class="form-group">
+        <label>Full name</label>
+        <input type="text" id="f-name" placeholder="e.g. Ahmed Khan" />
+      </div>
+      <div class="form-group">
+        <label>Business type</label>
+        <select id="f-biz">
+          <option value="">Select your business...</option>
+          <option>E-commerce / Online Store</option>
+          <option>Restaurant / Food Business</option>
+          <option>Real Estate Agency</option>
+          <option>Clothing / Fashion Brand</option>
+          <option>Coaching / Consultancy</option>
+          <option>Clinic / Healthcare</option>
+          <option>Tech Startup</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>What do you need?</label>
+        <select id="f-need">
+          <option value="">Select service...</option>
+          <option>New Website</option>
+          <option>Marketing Automation</option>
+          <option>AI-powered Chatbot</option>
+          <option>Full Package (Website + Automation + AI)</option>
+          <option>Not sure — need advice</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Budget range</label>
+        <select id="f-budget">
+          <option value="">Select budget...</option>
+          <option>Under $500</option>
+          <option>$500 – $1,500</option>
+          <option>$1,500 – $5,000</option>
+          <option>$5,000+</option>
+          <option>Not sure yet</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea id="f-msg" rows="4" placeholder="Tell us what you're looking to achieve..."></textarea>
+      </div>
+      <button class="submit-btn" id="submitBtn" onclick="runDemo()">Submit inquiry →</button>
+    </div>
+
+    <!-- Response panel -->
+    <div class="response-panel" id="responsePanel">
+
+      <!-- Processing card -->
+      <div class="response-card hidden" id="card-processing">
+        <div class="card-header">
+          <div class="card-icon blue">⚡</div>
+          <div>
+            <div class="card-title">AI Processing</div>
+            <div class="card-sub">Running in real time</div>
+          </div>
+        </div>
+        <div class="processing-steps" id="pSteps">
+          <div class="p-step" id="ps1"><div class="p-icon">1</div>Lead received from website form</div>
+          <div class="p-step" id="ps2"><div class="p-icon">2</div>Extracting name, intent & budget signals</div>
+          <div class="p-step" id="ps3"><div class="p-icon">3</div>Scoring lead with Claude AI</div>
+          <div class="p-step" id="ps4"><div class="p-icon">4</div>Generating personalized reply</div>
+          <div class="p-step" id="ps5"><div class="p-icon">5</div>Updating CRM &amp; notifying team</div>
+        </div>
+      </div>
+
+      <!-- Score card -->
+      <div class="response-card hidden" id="card-score">
+        <div class="card-header">
+          <div class="card-icon blue">🎯</div>
+          <div>
+            <div class="card-title">Lead qualification</div>
+            <div class="card-sub">Scored by Claude AI</div>
+          </div>
+        </div>
+        <div class="score-row" id="scoreBadges"></div>
+        <div class="summary-box" id="summaryBox"></div>
+      </div>
+
+      <!-- Reply card -->
+      <div class="response-card hidden" id="card-reply">
+        <div class="card-header">
+          <div class="card-icon green">✉️</div>
+          <div>
+            <div class="card-title">Reply sent to client</div>
+            <div class="card-sub">Delivered in &lt;60 seconds</div>
+          </div>
+        </div>
+        <div class="reply-preview" id="replyBox"></div>
+      </div>
+
+      <!-- Notification card -->
+      <div class="response-card hidden" id="card-notif">
+        <div class="card-header">
+          <div class="card-icon amber">🔔</div>
+          <div>
+            <div class="card-title">Team notified</div>
+            <div class="card-sub">Slack &amp; WhatsApp alert sent</div>
+          </div>
+        </div>
+        <div class="notif-row">
+          <div class="notif-avatar">💬</div>
+          <div class="notif-body" id="notifText">
+            <strong>New lead incoming</strong><br>
+            <span>Loading...</span>
+            <div class="notif-time">Just now</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-tag">What's included</div>
+  <h2 class="section-title">Everything you need.<br>Nothing you don't.</h2>
+  <p class="section-sub">A complete system built and managed for your business — no tech skills needed.</p>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon">🤖</div>
+      <h3>AI qualification</h3>
+      <p>Every lead scored Hot, Warm, or Cold with intent tags — so you always know who to call first.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">⚡</div>
+      <h3>Instant response</h3>
+      <p>Personalized replies sent in under 60 seconds, 24 hours a day — even on weekends and holidays.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📱</div>
+      <h3>Multi-channel</h3>
+      <p>Works with your website form, email inbox, and WhatsApp Business simultaneously.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <h3>Auto CRM</h3>
+      <p>Every lead logged in Airtable automatically — with score, summary, and full conversation history.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔔</div>
+      <h3>Team alerts</h3>
+      <p>Your team gets a Slack or WhatsApp notification for every hot lead, with a suggested next action.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔁</div>
+      <h3>Smart follow-ups</h3>
+      <p>Automated follow-up after 24 hours if no reply. Stops at 2 messages — never annoying, always timely.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2>Ready to stop<br>losing leads?</h2>
+  <p>We build and deploy this system for your business in under 7 days.</p>
+  <a href="#demo" class="btn-primary">Get this for my business →</a>
+  <div class="cta-meta">Setup fee + low monthly running cost · No long-term contracts</div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">irs<span>SMEX</span></div>
+  <p>Websites · Automation · AI — built to grow your business</p>
+  <p style="color:var(--faint); font-size:13px;">© 2026 irsSMEX</p>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ Lead submitted successfully</div>
+
+<script>
+const delay = ms => new Promise(r => setTimeout(r, ms));
+
+function getScore(budget, need) {
+  if (budget === '$5,000+' || budget === '$1,500 – $5,000') return 'hot';
+  if (budget === 'Under $500' || budget === 'Not sure yet') return 'cold';
+  return 'warm';
+}
+
+function getIntents(need) {
+  const map = {
+    'New Website': ['Website'],
+    'Marketing Automation': ['Automation'],
+    'AI-powered Chatbot': ['AI'],
+    'Full Package (Website + Automation + AI)': ['Website','Automation','AI'],
+    'Not sure — need advice': ['Website','Automation','AI'],
+  };
+  return map[need] || ['Website'];
+}
+
+function buildSummary(name, biz, need, budget) {
+  const b = budget || 'unspecified budget';
+  const n = need || 'digital services';
+  const bname = biz || 'their business';
+  return `${name || 'This client'} runs a ${bname} and is looking for ${n.toLowerCase()} with a ${b.toLowerCase()} — strong buying signals present.`;
+}
+
+function buildReply(name, biz, need) {
+  const first = name ? name.split(' ')[0] : 'there';
+  const service = need || 'your project';
+  return `<strong>Hi ${first},</strong><br><br>Thanks for reaching out — really excited about what you're building with your ${biz || 'business'}.<br><br>Based on what you've shared, <strong>${service}</strong> is exactly what we've helped businesses like yours with before.<br><br>A couple of quick questions so we can put together the right proposal for you:<br><br>1. Do you have an existing website, or are we starting fresh?<br>2. What's your main goal — more leads, more sales, or saving time on repetitive tasks?<br><br>I'll have a tailored plan ready for you within 24 hours. Looking forward to connecting! 🚀<br><br><strong>— irsSMEX Team</strong>`;
+}
+
+function buildNotif(name, biz, score, intents) {
+  const emoji = score === 'hot' ? '🔥' : score === 'warm' ? '☀️' : '❄️';
+  return `<strong>${emoji} ${score.toUpperCase()} lead — ${name || 'Anonymous'}</strong><br>
+    <span>${biz || 'Unknown business'} · Interested in: ${intents.join(', ')}</span>
+    <div class="notif-time">Just now · View in Airtable →</div>`;
+}
+
+async function runDemo() {
+  const name = document.getElementById('f-name').value.trim();
+  const biz = document.getElementById('f-biz').value;
+  const need = document.getElementById('f-need').value;
+  const budget = document.getElementById('f-budget').value;
+
+  if (!name || !biz || !need || !budget) {
+    alert('Please fill in all fields to see the demo.');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  // Show toast
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+
+  // Show processing card
+  const procCard = document.getElementById('card-processing');
+  procCard.classList.remove('hidden');
+  procCard.classList.add('active');
+  procCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // Animate steps
+  const steps = ['ps1','ps2','ps3','ps4','ps5'];
+  for (let i = 0; i < steps.length; i++) {
+    const el = document.getElementById(steps[i]);
+    el.classList.add('show');
+    el.querySelector('.p-icon') && (el.querySelector('.p-icon').innerHTML = '');
+    const spin = document.createElement('div');
+    spin.className = 'p-spin';
+    const icon = el.querySelector('.p-icon');
+    if (icon) { icon.replaceWith(spin); }
+    await delay(700);
+    el.classList.add('done');
+    const sp = el.querySelector('.p-spin');
+    if (sp) {
+      const newIcon = document.createElement('div');
+      newIcon.className = 'p-icon';
+      newIcon.textContent = '✓';
+      sp.replaceWith(newIcon);
+    }
+  }
+
+  await delay(400);
+
+  // Score card
+  const score = getScore(budget, need);
+  const intents = getIntents(need);
+  const scoreCard = document.getElementById('card-score');
+  scoreCard.classList.remove('hidden');
+  scoreCard.classList.add('active');
+
+  const badges = document.getElementById('scoreBadges');
+  const scoreClass = `score-${score}`;
+  badges.innerHTML = `<span class="score-badge ${scoreClass}">${score.toUpperCase()}</span>` +
+    intents.map(i => `<span class="intent-tag">${i}</span>`).join('');
+
+  // Type summary
+  const summary = buildSummary(name, biz, need, budget);
+  const summBox = document.getElementById('summaryBox');
+  summBox.innerHTML = '';
+  const cursor = document.createElement('span');
+  cursor.className = 'typing-cursor';
+  summBox.appendChild(cursor);
+  for (let c of summary) {
+    summBox.insertBefore(document.createTextNode(c), cursor);
+    await delay(18);
+  }
+  cursor.remove();
+
+  await delay(500);
+
+  // Reply card
+  const replyCard = document.getElementById('card-reply');
+  replyCard.classList.remove('hidden');
+  replyCard.classList.add('active');
+  document.getElementById('replyBox').innerHTML = buildReply(name, biz, need);
+
+  await delay(600);
+
+  // Notif card
+  const notifCard = document.getElementById('card-notif');
+  notifCard.classList.remove('hidden');
+  notifCard.classList.add('active');
+  document.getElementById('notifText').innerHTML = buildNotif(name, biz, score, intents);
+
+  btn.disabled = false;
+  btn.textContent = 'Submit another lead →';
+}
+</script>
+</body>
+</html>
